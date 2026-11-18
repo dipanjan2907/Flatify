@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { success } from "zod";
 import authRoutes from "./routes/auth.routes.js";
+import userRoutes from "./routes/user.routes.js";
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(cookieParser());
 
 //ROUTES
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 app.get("/api/health", (_req, res) => {
   res.status(200).json({ success: true, message: "Flatify API is running" });
 });
