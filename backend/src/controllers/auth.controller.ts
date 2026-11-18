@@ -5,7 +5,6 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import { signupSchema } from "../utils/auth.validation.js";
 import { loginSchema } from "../utils/login.validation.js";
-import { success, unknown } from "zod";
 
 export const signup = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -157,6 +156,14 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+const clearAuthCookie = (res: Response): void => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
+};
+
 export const signout = (_req: Request, res: Response): void => {
   clearAuthCookie(res);
   res.status(200).json({ success: true, message: "logged out successfully" });
@@ -164,7 +171,8 @@ export const signout = (_req: Request, res: Response): void => {
 
 export const getMe = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = await User.findById(req.user?.userId);
+    const userId = (req as Request & { user?: { userId: string } }).user?.userId;
+    const user = await User.findById(userId);
     if (!user) {
       res.status(404).json({
         success: false,
